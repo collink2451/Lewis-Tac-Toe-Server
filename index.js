@@ -8,31 +8,20 @@ const open = require('open')
 const { auth } = require('express-openid-connect');
 dotenv.config();
 var url = require('url');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const scoreboardFile = 'scoreboard.json';
+
+const {ensureAuthenticated} = require('./middleware');
 
 const port = process.env.PORT || 3000
+var jsonParser = bodyParser.json()
 
 // Use Express to publish static HTML, CSS, and JavaScript files that run in the browser. 
 app.use(express.static(__dirname + '/static'))
 
-// Auth0 code
-/*const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: 'a long, randomly-generated string stored in env',
-  baseURL: process.env.BASE_URL + ":" + port,
-  clientID: process.env.AUTH0_CLIENT_ID,
-  issuerBaseURL: process.env.AUTH0_ISSUER_BASE_URL
-};
-
-// auth router attaches /login, /logout, and /callback routes to the baseURL
-app.use(auth(config));
-
-// req.isAuthenticated is provided from the auth router
-app.get('/test', (req, res) => {
-  res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
-  console.log(req.user);
-});*/
-
+app.use(cors());
 
 app.use(session({
   secret: process.env.SECRET_KEY,
@@ -51,6 +40,7 @@ passport.use(new GitHubStrategy({
   },
   function(accessToken, refreshToken, profile, done) {
     console.log('GitHub profile:', profile);
+    profile.accessToken = accessToken;
     return done(null, profile);
   }
 ));
@@ -66,25 +56,64 @@ passport.deserializeUser(function(obj, done) {
 });
 
 // Routes
-app.get('/auth/github', passport.authenticate('github'));
+app.get('/api/auth', (req, res) => {
+  const redirectUrl = req.query.redirectUrl || '/';
 
-app.get('/auth/github/callback',
-  passport.authenticate('github', { failureRedirect: '/login' }),
+  passport.authenticate('github', { callbackURL: process.env.GITHUB_CALLBACK_URL + '?redirectUrl=' + encodeURIComponent(redirectUrl) })(req, res);
+});
+
+app.get('/api/auth/callback',
+  passport.authenticate('github', { failureRedirect: '/' }),
   function(req, res) {
-    // Successful authentication, redirect home or wherever needed
-    console.log(req.user);
-    res.redirect('/');
+    const redirectUrl = req.query.redirectUrl || '/';
+
+    res.redirect(`${redirectUrl}?accessToken=${req.user.accessToken}`);
   }
 );
 
-app.get('/', function(req, res) {
-  if (req.user) {
-    res.send('Hello, authenticated user!');
+app.post('/api/scoreboard', jsonParser, ensureAuthenticated, async (req, res) => {
+  if (!fs.existsSync(scoreboardFile)) {
+    fs.writeFileSync(scoreboardFile, "[]");
   }
-  else 
-  {
-    res.send('Hello, unauthenticated user!');
+
+  fs.readFile(scoreboardFile, 'utf8', function (err, data) {
+    if (err) {
+      console.log('Error reading file:', err);
+      return;
+    }
+
+    const scoreboard = JSON.parse(data);
+
+    // Check if user has a score
+    if (!scoreboard.find((user) => user.username === req.user.login)) {
+      scoreboard.push({username: req.user.login, score: 1});
+    } else {
+      scoreboard.find((user) => user.username === req.user.login).score++;
+    }
+
+    fs.writeFile(scoreboardFile, JSON.stringify(scoreboard), function (err) {
+      if (err) {
+        console.log('Error writing file:', err);
+      }
+    });
+    res.send(scoreboard);
+    return;
+  });
+});
+
+app.get("/api/scoreboard", (req, res) => {
+  if (!fs.existsSync(scoreboardFile)) {
+    fs.writeFileSync(scoreboardFile, "[]");
   }
+
+  // Read the file
+  fs.readFile(scoreboardFile, 'utf8', function (err, data) {
+    if (err) {
+      console.log('Error reading file:', err);
+      return;
+    }
+    res.send(data);
+  });
 });
 
 // Custom 404 page.
