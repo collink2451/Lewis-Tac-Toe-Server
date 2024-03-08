@@ -51,9 +51,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_DC5E3A4DA22247DFA397E631BAB896C4 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_71FBA0502C0A4D4DACEA2A9CA85EF3F5 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_1DB8A9484819448C9561F623EBD185E7 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_36C41A7220D2421E98D8F15AB08B0A17 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F88C785F17E541E399F014CF6CE9C60D }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_59FE290601E4461FA18838AE55AAA559 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
@@ -62,9 +62,4 @@ jobs:
           app-name: 'lewis-tac-toe'
           slot-name: 'Production'
           package: .
-      - name: Set up environment variables
-        run: |
-          echo "GITHUB_CLIENT_ID=${{ secrets.GITHUB_CLIENT_ID }}" >> $GITHUB_ENV
-          echo "GITHUB_CLIENT_SECRET=${{ secrets.GITHUB_CLIENT_SECRET }}" >> $GITHUB_ENV
-          echo "GITHUB_CALLBACK_URL=${{ secrets.GITHUB_CALLBACK_URL }}" >> $GITHUB_ENV
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          
