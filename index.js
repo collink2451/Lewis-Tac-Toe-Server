@@ -34,9 +34,9 @@ app.use(passport.session());
 
 // Passport setup
 passport.use(new GitHubStrategy({
-    clientID: process.env.GITHUB_CLIENT_ID,
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: process.env.GITHUB_CALLBACK_URL
+    clientID: process.env.OAUTH_CLIENT_ID,
+    clientSecret: process.env.OAUTH_CLIENT_SECRET,
+    callbackURL: process.env.OAUTH_CALLBACK_URL
   },
   function(accessToken, refreshToken, profile, done) {
     console.log('GitHub profile:', profile);
@@ -59,7 +59,7 @@ passport.deserializeUser(function(obj, done) {
 app.get('/api/auth', (req, res) => {
   const redirectUrl = req.query.redirectUrl || '/';
 
-  passport.authenticate('github', { callbackURL: process.env.GITHUB_CALLBACK_URL + '?redirectUrl=' + encodeURIComponent(redirectUrl) })(req, res);
+  passport.authenticate('github', { callbackURL: process.env.OAUTH_CALLBACK_URL + '?redirectUrl=' + encodeURIComponent(redirectUrl) })(req, res);
 });
 
 app.get('/api/auth/callback',
