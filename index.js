@@ -3,10 +3,8 @@ const app = express();
 const passport = require('passport');
 const session = require('express-session');
 const GitHubStrategy = require('passport-github').Strategy;
-const dotenv = require('dotenv');
 const open = require('open')
 const { auth } = require('express-openid-connect');
-dotenv.config();
 var url = require('url');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -133,6 +131,5 @@ app.use((err, request, response, next) => {
 
 app.listen(port, () => console.log(
   `Express started at \"http://localhost:${port}\"\n` +
-  `press Ctrl-C to terminate.`),
-  open(`http://localhost:${port}`)
+  `press Ctrl-C to terminate.`)
 )
