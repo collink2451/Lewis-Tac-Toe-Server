@@ -67,6 +67,5 @@ jobs:
           touch .env
           echo OAUTH_CLIENT_ID=${{ vars.OAUTH_CLIENT_ID }} >> .env
           echo OAUTH_CLIENT_SECRET=${{ secrets.OAUTH_CLIENT_SECRET }} >> .env
-          echo OAUTH_CALLBACK_URL=${{ vars.OAUTH_CALLBACK_URL }} >> .env
-          echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
-          cat .env
+          echo OAUTH_CALLBACK_URL="${{ vars.OAUTH_CALLBACK_URL }}" >> .env
+          echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
