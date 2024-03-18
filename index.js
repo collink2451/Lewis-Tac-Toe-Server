@@ -11,7 +11,10 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const scoreboardFile = 'scoreboard.json';
 const dotenv = require('dotenv');
+const db = require('./db');
+const LeaderBoardModel = require('./models/LeaderBoardModel');
 dotenv.config();
+db.connect();
 
 const {ensureAuthenticated} = require('./middleware');
 
@@ -72,48 +75,29 @@ app.get('/api/auth/callback',
 );
 
 app.post('/api/scoreboard', jsonParser, ensureAuthenticated, async (req, res) => {
-  if (!fs.existsSync(scoreboardFile)) {
-    fs.writeFileSync(scoreboardFile, "[]");
+  // Check if username exists in database
+  const user = await LeaderBoardModel.findOne({ username: req.user.login });
+
+  if (user) {
+    user.score++;
+    await user.save();
+  } else {
+    await LeaderBoardModel.create({
+      username: req.user.username,
+      score: 1
+    });
   }
 
-  fs.readFile(scoreboardFile, 'utf8', function (err, data) {
-    if (err) {
-      console.log('Error reading file:', err);
-      return;
-    }
+  // Return full collection
+  const leaderboard = await LeaderBoardModel.find({}).lean();
 
-    const scoreboard = JSON.parse(data);
-
-    // Check if user has a score
-    if (!scoreboard.find((user) => user.username === req.user.login)) {
-      scoreboard.push({username: req.user.login, score: 1});
-    } else {
-      scoreboard.find((user) => user.username === req.user.login).score++;
-    }
-
-    fs.writeFile(scoreboardFile, JSON.stringify(scoreboard), function (err) {
-      if (err) {
-        console.log('Error writing file:', err);
-      }
-    });
-    res.send(scoreboard);
-    return;
-  });
+  res.send(leaderboard);
 });
 
-app.get("/api/scoreboard", (req, res) => {
-  if (!fs.existsSync(scoreboardFile)) {
-    fs.writeFileSync(scoreboardFile, "[]");
-  }
+app.get("/api/scoreboard", async (req, res) => {
+  const leaderboard = await LeaderBoardModel.find({}).lean();
 
-  // Read the file
-  fs.readFile(scoreboardFile, 'utf8', function (err, data) {
-    if (err) {
-      console.log('Error reading file:', err);
-      return;
-    }
-    res.send(data);
-  });
+  res.send(leaderboard);
 });
 
 // Custom 404 page.
