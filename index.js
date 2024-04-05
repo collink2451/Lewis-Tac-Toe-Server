@@ -82,7 +82,7 @@ app.post('/api/scoreboard', jsonParser, ensureAuthenticated, async (req, res) =>
     await user.save();
   } else {
     await LeaderBoardModel.create({
-      username: req.user.username,
+      username: req.user.login,
       score: 1
     });
   }
