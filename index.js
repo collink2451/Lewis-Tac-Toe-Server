@@ -75,7 +75,6 @@ app.get('/api/auth/callback',
 );
 
 app.post('/api/scoreboard', jsonParser, ensureAuthenticated, async (req, res) => {
-  // Check if username exists in database
   const user = await LeaderBoardModel.findOne({ username: req.user.login });
 
   if (user) {
@@ -88,7 +87,6 @@ app.post('/api/scoreboard', jsonParser, ensureAuthenticated, async (req, res) =>
     });
   }
 
-  // Return full collection
   const leaderboard = await LeaderBoardModel.find({}).lean();
 
   res.send(leaderboard);
