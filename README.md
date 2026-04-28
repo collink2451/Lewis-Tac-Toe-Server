@@ -1,10 +1,4 @@
 # PROJECT_TITLE
-
-Developed by Collin Koldoff
-
-collinakoldoff@lewisu.edu
-
----
 ## Requirements
 
 For development, you will only need Node.js installed in your environement.
