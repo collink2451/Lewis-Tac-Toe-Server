@@ -1,14 +1,62 @@
-# PROJECT_TITLE
-## Requirements
+# Lewis Tic-Tac-Toe Server
 
-For development, you will only need Node.js installed in your environement.
+Node.js/Express backend for the Lewis Tic-Tac-Toe game. Handles GitHub OAuth authentication and a persistent leaderboard stored in MongoDB. Pairs with the [ReactTicTacToe](../ReactTicTacToe) frontend.
+
+## API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/auth` | Redirect to GitHub OAuth login |
+| `GET` | `/api/auth/callback` | GitHub OAuth callback |
+| `POST` | `/api/scoreboard` | Increment the authenticated user's score (requires auth) |
+| `GET` | `/api/scoreboard` | Get the full leaderboard |
+
+## Tech Stack
+
+- **Runtime:** Node.js
+- **Framework:** Express
+- **Auth:** GitHub OAuth via Passport.js (session-based)
+- **Database:** MongoDB (via Mongoose)
 
 ## Setup
 
-    $ git clone https://github.com/collink2451/PROJECT_TITLE
-    $ cd PROJECT_TITLE
-    $ npm i
+### Requirements
 
-## Running the project
+- Node.js 18+
+- MongoDB instance
+- GitHub OAuth app ([GitHub Developer Settings](https://github.com/settings/developers))
 
-    npm start
+### Installation
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create a `.env` file in the root directory:
+
+```env
+MONGO_URI=your_mongodb_connection_string
+PORT=3000
+
+# GitHub OAuth
+OAUTH_CLIENT_ID=your_github_oauth_client_id
+OAUTH_CLIENT_SECRET=your_github_oauth_client_secret
+OAUTH_CALLBACK_URL=http://localhost:3000/api/auth/callback
+
+# Session
+SECRET_KEY=your_random_session_secret
+```
+
+3. Start the server:
+
+```bash
+npm start
+```
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start the server |
