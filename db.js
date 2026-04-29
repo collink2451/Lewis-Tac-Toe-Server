@@ -1,20 +1,20 @@
-const mongoose = require("mongoose");
+const mysql = require('mysql2/promise');
 
-mongoose.Promise = global.Promise;
+const pool = mysql.createPool({
+  host: process.env.MYSQL_HOST || 'localhost',
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
+});
+
 const connect = async () => {
-  await mongoose
-    .connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(() => {
-      console.log("Connected to API Database - Initial Connection");
-    })
-    .catch((err) => {
-      console.log(
-        `Initial Distribution API Database connection error occured -`,
-        err
-      );
-    });
+  try {
+    const conn = await pool.getConnection();
+    console.log('Connected to MySQL database');
+    conn.release();
+  } catch (err) {
+    console.log('MySQL connection error:', err);
+  }
 };
-module.exports = { connect };
+
+module.exports = { pool, connect };

@@ -72,26 +72,13 @@ app.get('/api/auth/callback',
 );
 
 app.post('/api/scoreboard', jsonParser, ensureAuthenticated, async (req, res) => {
-  const user = await LeaderBoardModel.findOne({ username: req.user.login });
-
-  if (user) {
-    user.score++;
-    await user.save();
-  } else {
-    await LeaderBoardModel.create({
-      username: req.user.login,
-      score: 1
-    });
-  }
-
-  const leaderboard = await LeaderBoardModel.find({}).lean();
-
+  await LeaderBoardModel.incrementScore(req.user.login);
+  const leaderboard = await LeaderBoardModel.findAll();
   res.send(leaderboard);
 });
 
 app.get("/api/scoreboard", async (req, res) => {
-  const leaderboard = await LeaderBoardModel.find({}).lean();
-
+  const leaderboard = await LeaderBoardModel.findAll();
   res.send(leaderboard);
 });
 
