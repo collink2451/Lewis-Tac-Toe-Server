@@ -1,30 +1,34 @@
 # Tic-Tac-Toe Server
 
-Node.js/Express backend for the Lewis Tic-Tac-Toe game. Handles GitHub OAuth authentication and a persistent leaderboard stored in MongoDB. Pairs with the [tictactoe-client](../tictactoe-client) frontend.
+Node.js/Express backend for the Tic-Tac-Toe game. Manages a persistent leaderboard stored in MySQL. Pairs with the [tictactoe-client](../tictactoe-client) frontend.
 
 ## API Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/auth` | Redirect to GitHub OAuth login |
-| `GET` | `/api/auth/callback` | GitHub OAuth callback |
-| `POST` | `/api/scoreboard` | Increment the authenticated user's score (requires auth) |
+| `POST` | `/api/scoreboard` | Increment a user's score |
 | `GET` | `/api/scoreboard` | Get the full leaderboard |
 
 ## Tech Stack
 
 - **Runtime:** Node.js
 - **Framework:** Express
-- **Auth:** GitHub OAuth via Passport.js (session-based)
-- **Database:** MongoDB (via Mongoose)
+- **Database:** MySQL (via mysql2)
 
 ## Setup
 
 ### Requirements
 
 - Node.js 18+
-- MongoDB instance
-- GitHub OAuth app ([GitHub Developer Settings](https://github.com/settings/developers))
+- MySQL instance with the following table:
+
+```sql
+CREATE TABLE leaderboard (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    score INT NOT NULL DEFAULT 0
+);
+```
 
 ### Installation
 
@@ -37,16 +41,11 @@ npm install
 2. Create a `.env` file in the root directory:
 
 ```env
-MONGO_URI=your_mongodb_connection_string
 PORT=3000
-
-# GitHub OAuth
-OAUTH_CLIENT_ID=your_github_oauth_client_id
-OAUTH_CLIENT_SECRET=your_github_oauth_client_secret
-OAUTH_CALLBACK_URL=http://localhost:3000/api/auth/callback
-
-# Session
-SECRET_KEY=your_random_session_secret
+MYSQL_HOST=localhost
+MYSQL_USER=your_mysql_user
+MYSQL_PASSWORD=your_mysql_password
+MYSQL_DATABASE=tictactoe
 ```
 
 3. Start the server:
